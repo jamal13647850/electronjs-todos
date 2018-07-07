@@ -20,6 +20,8 @@
     "electron": "^2.0.0"
   },
   "dependencies": {
-    "pouchdb-browser": "^7.0.0"
+    "electron-json-storage": "^4.1.0",
+    "pouchdb-browser": "^7.0.0",
+    "uuid": "^3.3.2"
   }
 }

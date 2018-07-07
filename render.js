@@ -6,8 +6,10 @@
     var newTodoDom = document.getElementById('new-todo');
     var syncDom = document.getElementById('sync-wrapper');
 
+
     // EDITING STARTS HERE (you dont need to edit anything above this line)
-    var PouchDB = require('pouchdb-browser');
+
+    /*var PouchDB = require('pouchdb-browser');
     var db = PouchDB('todos');
     var remoteCouch = false;
 
@@ -16,9 +18,14 @@
         live : true
 
     }).on('change',showTodos);
+    */
+
+    const uuidv1 = require('uuid/v1');
+    const storage = require('electron-json-storage');
+
     // We have to create a new todo document and enter it in the database
     function addTodo(text) {
-        let todo = {
+        /*let todo = {
             _id : new Date().toISOString(),
             title : text,
             completed : false
@@ -27,42 +34,83 @@
             if(!err){
                 console.log("successfully posted a todo !");
             }
+        });*/
+
+        let _id =uuidv1();
+        let todo = {
+            _id : _id,
+            title : text,
+            completed : false
+        };
+        storage.set(_id,todo,(err)=>{
+            console.log(err);
+            showTodos()
         });
     }
 
+
+
     // Show the current list of todos by reading them from the database
     function showTodos() {
-        db.allDocs({include_docs: true,descending:true},(err,doc)=>{
+       /* db.allDocs({include_docs: true,descending:true},(err,doc)=>{
             if(err){
                 console.log(err);
             }
             else{
                 redrawTodosUI(doc.rows);
             }
-        })
+        })*/
+       storage.getAll((err,data)=>{
+           if(err){
+               console.log(err);
+           }
+           else{
+               redrawTodosUI(data);
+           }
+       })
+
     }
 
     function checkboxChanged(todo, event) {
         todo.completed = event.target.checked;
-        db.put(todo);
+        /*db.put(todo);*/
+        storage.set(todo._id,todo);
     }
 
 
     // User pressed the delete button for a todo, delete it
     function deleteButtonPressed(todo) {
-        db.remove(todo)
+        /*db.remove(todo)*/
+        storage.remove(todo._id,(err)=>{
+            if(!err){
+                showTodos();
+            }
+        })
     }
 
     // The input box when editing a todo has blurred, we should save
     // the new title or delete the todo if the title is empty
     function todoBlurred(todo, event) {
-        let trimedText = event.target.value.trim();
+        /*let trimedText = event.target.value.trim();
         if(!trimedText){
             db.remove(todo);
         }
         else{
             todo.title=trimedText;
             db.put(todo);
+        }*/
+
+        let trimedText = event.target.value.trim();
+        if(!trimedText){
+            storage.remove(todo._id,(err)=>{
+                if(!err){
+                    showTodos();
+                }
+            })
+        }
+        else{
+            todo.title=trimedText;
+            storage.set(todo._id,todo);
         }
 
     }
@@ -92,6 +140,7 @@
         if (event.keyCode === ENTER_KEY) {
             var inputEditTodo = document.getElementById('input_' + todo._id);
             inputEditTodo.blur();
+            showTodos();
         }
     }
 
@@ -140,8 +189,11 @@
     function redrawTodosUI(todos) {
         var ul = document.getElementById('todo-list');
         ul.innerHTML = '';
-        todos.forEach(function(todo) {
-            ul.appendChild(createTodoListItem(todo.doc));
+        /* todos.forEach(function(todo) {
+             ul.appendChild(createTodoListItem(todo.doc));
+         });*/
+        Object.keys(todos).forEach(function(key) {
+            ul.appendChild(createTodoListItem(todos[key]));
         });
     }
 
@@ -159,8 +211,8 @@
     addEventListeners();
     showTodos();
 
-    if (remoteCouch) {
+    /*if (remoteCouch) {
         sync();
-    }
+    }*/
 
 })();
