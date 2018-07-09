@@ -4,7 +4,11 @@
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build:win": "electron-packager . todos --platform win32 --asar --overwrite --icon ./icons/todos.ico --out ./build",
+    "build:mac": "electron-packager . todos --platform darwin --asar --overwrite --icon ./icons/todos.icns --out ./build",
+    "build:linux": "electron-packager . todos --platform linux --asar --overwrite --icon ./icons/todos.png --out ./build",
+    "build:all": "electron-packager . todos --platform all --asar --overwrite  --icon ./icons/todos --out ./build"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -17,7 +21,8 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^2.0.0"
+    "electron": "^2.0.0",
+    "electron-packager": "^12.1.0"
   },
   "dependencies": {
     "electron-json-storage": "^4.1.0",
